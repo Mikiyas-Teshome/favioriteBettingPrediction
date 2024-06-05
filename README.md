@@ -5,10 +5,12 @@ Welcome to the Favorite Betting Prediction App! This project is a comprehensive 
 
 ## Screenshots
 
+<div style="display: flex; justify-content: space-between;">
 <img src="/screenshots/pic1.jpg" alt="Screenshot 1" width="200"/>
 <img src="/screenshots/pic2.jpg" alt="Screenshot 2" width="200"/>
 <img src="/screenshots/pic3.jpg" alt="Screenshot 3" width="200"/>
 <img src="/screenshots/pic4.jpg" alt="Screenshot 3" width="200"/>
+</div>
 
 ## Table of Contents
 
