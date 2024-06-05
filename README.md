@@ -2,6 +2,14 @@
 
 Welcome to the Favorite Betting Prediction App! This project is a comprehensive mobile application designed to provide accurate and well-informed betting tips. Developed using Flutter for the frontend and NestJS for the backend, the app ensures a seamless user experience with real-time updates, comprehensive match analyses, and user-friendly features.
 
+
+## Screenshots
+
+<img src="/screenshots/pic1.png" alt="Screenshot 1" width="200"/>
+<img src="/screenshots/pic2.png" alt="Screenshot 2" width="200"/>
+<img src="/screenshots/pic3.png" alt="Screenshot 3" width="200"/>
+<img src="/screenshots/pic4.png" alt="Screenshot 3" width="200"/>
+
 ## Table of Contents
 
 - [Features](#features)
