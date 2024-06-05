@@ -1,0 +1,5 @@
+package com.mike.favouritebettigtipsapp
+
+import io.flutter.embedding.android.FlutterActivity
+
+class MainActivity: FlutterActivity()
