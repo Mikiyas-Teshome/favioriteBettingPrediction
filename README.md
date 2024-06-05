@@ -1,6 +1,6 @@
 # FavoriteBettingPrediction
 
-Welcome to the Favorite Betting Prediction App! This project is a comprehensive mobile application designed to provide accurate and well-informed betting tips. Developed using Flutter for the frontend and NestJS for the backend, the app ensures a seamless user experience with real-time updates, comprehensive match analyses, and user-friendly features.
+Welcome to the Favorite Betting Prediction App! This project is a comprehensive mobile application designed to provide accurate and well-informed betting tips. Developed using Flutter for the frontend and NestJS for the backend, the app ensures a seamless user experience with  comprehensive match analyses, and user-friendly features.
 
 
 ## Screenshots
@@ -25,7 +25,7 @@ Welcome to the Favorite Betting Prediction App! This project is a comprehensive 
 ## Features
 
 - **Accurate Betting Tips**: Access reliable betting predictions based on thorough analyses.
-- **Real-Time Updates**: Stay updated with the latest match results and predictions.
+- **Match Updates**: Stay updated with the latest match results and predictions.
 - **User-Friendly Interface**: Enjoy a seamless and intuitive user experience.
 - **Comprehensive Match Analyses**: In-depth analysis of matches to make informed betting decisions.
 - **Cross-Platform Compatibility**: Available on both iOS and Android devices.
@@ -35,7 +35,6 @@ Welcome to the Favorite Betting Prediction App! This project is a comprehensive 
 - **Frontend**: Flutter
 - **Backend**: NestJS
 - **State Management**: Bloc
-- **Payment Integration**: Flutterwave, Flocash
 
 ## Installation
 
