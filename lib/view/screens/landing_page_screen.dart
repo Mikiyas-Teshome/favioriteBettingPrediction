@@ -1,7 +1,11 @@
+import 'dart:math';
+
 import 'package:dio/dio.dart';
+import 'package:faviorite_app/bloc/bonus_tips_bloc/bonus_tips_bloc.dart';
 import 'package:faviorite_app/bloc/tips_bloc/tips_bloc.dart';
 import 'package:faviorite_app/constants/color_constants.dart';
 import 'package:faviorite_app/cubits/tips_cubit/tips_cubit.dart';
+import 'package:faviorite_app/services/bonus_tips_service.dart';
 import 'package:faviorite_app/view/screens/free_tips_page.dart';
 import 'package:faviorite_app/view/screens/home_page.dart';
 import 'package:faviorite_app/view/screens/settings_page.dart';
@@ -11,9 +15,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 
-import '../../bloc/fetch_categories_bloc/categories_bloc.dart';
-import '../../bloc/nav_bloc/nav_bloc.dart';
-import '../../cubits/categories_cubit/category_cubit.dart';
+import '../../cubits/free_tips_categories_cubit/free_tips_category_cubit.dart';
+import '../../cubits/vip_tips_categories_cubit/vip_tips_category_cubit.dart';
 import '../../repositories/category_repository.dart';
 import '../../services/auth_services/auth_service.dart';
 import '../../services/tips_service.dart';
@@ -54,31 +57,17 @@ class LandingPageScreen extends StatefulWidget {
 class _LandingPageScreenState extends State<LandingPageScreen> {
   final categoryRepository = CategoryRepository();
 
-  // final List<Widget> _screens = [
-  //   MultiBlocProvider(
-  //     // create: (context) =>
-  //     //     ),
-  //     providers: [
-  //       BlocProvider(
-  //         create: (context) =>
-  //             CategoryCubit(categoryRepository)..fetchCategories(),
-  //       ),
-  //       BlocProvider(
-  //         create: (context) => SubcategoryCubit(categoryRepository),
-  //       ),
-  //     ],
-  //     child: HomePage(),
-  //   ),
-  //   FreeTipsPage(),
-  //   VIPTipsPage(),
-  //   SettingsPage(),
-  //   // Add more screens as needed
-  // ];
-  final AuthService authService = AuthService(Dio(), FlutterSecureStorage());
   int _selectedIndex = 0;
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    randomNumbers = generateRandomNumbers();
+  }
 
+  late List<int> randomNumbers;
   final List<Widget> _pages = [
-    HomePage(),
+    // HomePage(randomNumbers: randomNumbers),
     FreeTipsPage(),
     VIPTipsPage(),
     SettingsPage(),
@@ -90,10 +79,27 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
     });
   }
 
+  List<int> generateRandomNumbers() {
+    final random = Random();
+    final List<int> numbers = List.generate(7, (index) => index);
+    numbers.shuffle(random);
+    return numbers.take(6).toList();
+  }
+
+  List<String> specialTipsEndPoint = [
+    "Over-Under",
+    "Basketball",
+    "Tennis",
+    "Fixed VIP",
+    "Daily 10+ Odds VIP",
+    "HT-FT VIP",
+    "Single VIP + Double VIP",
+  ];
   @override
   Widget build(BuildContext context) {
     final categoryRepository = CategoryRepository();
 
+    final bonusTipsService = BonusTipsService();
     // return BlocConsumer<NavBloc, NavState>(
     //   listener: (context, state) {},
     //   builder: (context, state) {
@@ -102,14 +108,32 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
       //     ),
       providers: [
         BlocProvider(
-          create: (context) => CategoryCubit(categoryRepository),
+          create: (context) => BonusTipsBloc(bonusTipsService)
+            ..add(FetchBonusTipsList(categoryName: "Tennis")),
+        ),
+        BlocProvider(
+          create: (context) => FreeTipsCategoryCubit(categoryRepository),
+        ),
+        BlocProvider(
+          create: (context) => VipTipsCategoryCubit(categoryRepository),
         ),
         BlocProvider(
           create: (context) => TipsCubit(categoryRepository),
         ),
       ],
       child: Scaffold(
-          body: SafeArea(child: _pages[_selectedIndex]),
+          body: SafeArea(
+              child: _selectedIndex == 0
+                  ? BlocProvider(
+                      create: (context) {
+                        print("Creating BonusTipsBloc"); // Debug print
+                        final bloc = BonusTipsBloc(BonusTipsService());
+                        bloc.add(FetchBonusTipsList(categoryName: "Tennis"));
+                        return bloc;
+                      },
+                      child: HomePage(randomNumbers: randomNumbers),
+                    )
+                  : _pages[_selectedIndex - 1]),
           // Center(child: bottomNavScreen.elementAt(state.tabIndex)),
           bottomNavigationBar: Container(
               margin: EdgeInsets.only(
@@ -150,6 +174,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
                   onTap: (index) {
                     // BlocProvider.of<NavBloc>(context)
                     //     .add(NavTabChange(tabIndex: index));
+
                     _onItemTapped(index);
                   },
                 ),

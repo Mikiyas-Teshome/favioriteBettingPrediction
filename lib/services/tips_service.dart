@@ -34,17 +34,17 @@ class TipsService {
           options: Options(headers: {
             "application": "63762d7ba4b7b40ec4f71fe1",
           }));
-      print("Res data: ${response.data}");
+      // print("Res data: ${response.data}");
 
       if (response.statusCode == 200) {
         final jsonData = response.data as Map<String, dynamic>;
         return FreeTipsModel.fromJson(jsonData);
       } else {
-        print("Error fetching data: ${response.statusCode}");
+        // print("Error fetching data: ${response.statusCode}");
         throw Exception("Error fetching data: ${response.statusCode}");
       }
     } on DioException catch (error) {
-      print("Error: ${error.message}");
+      // print("Error: ${error.message}");
       throw Exception("Error: ${error.message}");
     }
   }

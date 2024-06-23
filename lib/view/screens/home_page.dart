@@ -3,26 +3,35 @@ import 'dart:math';
 import 'package:carousel_slider/carousel_options.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dio/dio.dart';
+import 'package:faviorite_app/bloc/bonus_tips_bloc/bonus_tips_bloc.dart';
 import 'package:faviorite_app/constants/color_constants.dart';
 import 'package:faviorite_app/cubits/tips_cubit/tips_cubit.dart';
+import 'package:faviorite_app/view/screens/free_tips_screen.dart';
+import 'package:faviorite_app/view/screens/vip_tips_screen.dart';
 import 'package:faviorite_app/view/widgets/banner_widget.dart';
 import 'package:faviorite_app/view/widgets/collapsible_widget.dart';
 import 'package:faviorite_app/view/widgets/match_item_widget.dart';
 import 'package:faviorite_app/view/widgets/tip_bottom_sheet.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
-import '../../cubits/categories_cubit/category_cubit.dart';
+import '../../cubits/free_tips_categories_cubit/free_tips_category_cubit.dart';
+import '../../cubits/vip_tips_categories_cubit/vip_tips_category_cubit.dart';
 import '../../repositories/ad_manager.dart';
+import '../../repositories/category_repository.dart';
+import '../../repositories/security.dart';
 import '../../services/auth_services/auth_service.dart';
+import '../../services/bonus_tips_service.dart';
 import '../../services/tips_service.dart';
 import '../widgets/shimmer_loading.dart';
 import 'package:intl/intl.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+  const HomePage({super.key, required this.randomNumbers});
 
+  final List<int> randomNumbers;
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -33,26 +42,59 @@ class _HomePageState extends State<HomePage> {
       AuthService(Dio(), const FlutterSecureStorage());
   String userName = "Guest";
   int activeSubCat = 0;
+  final FlutterSecureStorage _secureStorage = const FlutterSecureStorage();
   @override
   void initState() {
     super.initState();
 
     _adManager.loadInterstitialAd();
     _fetchData();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      final categoryCubit = context.read<CategoryCubit>();
-      categoryCubit.fetchCategories().then((_) {
-        final categoryState = categoryCubit.state;
-        if (categoryState is CategoryLoaded) {
-          final firstCategoryId = categoryState
-              .categories.data[categoryState.randomNumbers.first].id;
-          context.read<TipsCubit>().fetchTips(firstCategoryId);
-        }
-      });
-    });
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   print("randomNumgers ${widget.randomNumbers.first}");
+    //
+    //   BlocProvider.of<BonusTipsBloc>(context).add(
+    //     FetchBonusTipsList(
+    //         categoryName: specialTipsEndPoint[widget.randomNumbers.first]),
+    //   );
+    // });
   }
 
+  List<String> specialTipsNames = [
+    "Over-Under👑",
+    "Basketball👑",
+    "Tennis👑",
+    "Fixed Tips👑",
+    "Daily 10+👑",
+    "HT-FT 👑",
+    "Single + Double👑",
+  ];
+
+  List<String> specialTipsIcons = [
+    "assets/over_under.png",
+    "assets/basketball.png",
+    "assets/tennis.png",
+    "assets/fixed.png",
+    "assets/top_daily_tips.png",
+    "assets/halfTime.png",
+    "assets/single.png",
+  ];
+
+  List<String> specialTipsEndPoint = [
+    "Over-Under",
+    "Basketball",
+    "Tennis",
+    "Fixed VIP",
+    "Daily 10+ Odds VIP",
+    "HT-FT VIP",
+    "Single VIP + Double VIP",
+  ];
+
   Future<void> _fetchData() async {
+    String? launchStatus = await _secureStorage.read(key: 'isFirstLaunch');
+    if (launchStatus == null || launchStatus == "true") {
+      await _secureStorage.write(key: 'isFirstLaunch', value: "false");
+    }
+
     authService.getUserData().then((userData) {
       if (userData != null) {
         Map<String, String> data = _convertToMapStringString(userData);
@@ -71,7 +113,7 @@ class _HomePageState extends State<HomePage> {
   ];
   List<String> bannerText = [
     "Free Tips",
-    "Bonus Tips",
+    "Bonus Tips👑",
     "vip Tips",
   ];
   List<String> bannerImage = [
@@ -90,10 +132,10 @@ class _HomePageState extends State<HomePage> {
     Colors.white,
   ];
 
-  List<Widget> subCategories = [];
-
   @override
   Widget build(BuildContext context) {
+    final categoryRepository = CategoryRepository();
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -151,12 +193,43 @@ class _HomePageState extends State<HomePage> {
           items: [0, 1, 2].map((i) {
             return Builder(
               builder: (BuildContext context) {
-                return BannerWidget(
-                  bannerIcon: bannerIcon[i],
-                  bannerText: bannerText[i],
-                  bannerImage: bannerImage[i],
-                  bannerColor: bannerColor[i],
-                  bannerTextColor: bannerTextColor[i],
+                return GestureDetector(
+                  onTap: () {
+                    if (i == 0) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return BlocProvider(
+                              create: (context) =>
+                                  FreeTipsCategoryCubit(categoryRepository),
+                              child: FreeTipsScreen(),
+                            );
+                          },
+                        ),
+                      );
+                    } else if (i == 2) {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) {
+                            return BlocProvider(
+                              create: (context) =>
+                                  VipTipsCategoryCubit(categoryRepository),
+                              child: VipTipsScreen(),
+                            );
+                          },
+                        ),
+                      );
+                    }
+                  },
+                  child: BannerWidget(
+                    bannerIcon: bannerIcon[i],
+                    bannerText: bannerText[i],
+                    bannerImage: bannerImage[i],
+                    bannerColor: bannerColor[i],
+                    bannerTextColor: bannerTextColor[i],
+                  ),
                 );
               },
             );
@@ -177,95 +250,138 @@ class _HomePageState extends State<HomePage> {
                 fontWeight: FontWeight.w700),
           ),
         ),
-        BlocBuilder<CategoryCubit, CategoryState>(
-          builder: (context, state) {
-            if (state is CategoryLoading) {
-              return Container(
-                height: 63.0,
-                padding: const EdgeInsets.only(
-                  left: 20.0,
-                ),
-                child: ShimmerLoading(
-                  child: ListView.builder(
-                    shrinkWrap: true,
-                    scrollDirection: Axis.horizontal,
-                    itemCount:
-                        9, // Adjust count for desired number of shimmer items
-                    itemBuilder: (context, index) {
-                      return Padding(
-                        padding: const EdgeInsets.only(right: 10.0),
-                        child: Container(
-                          width: 63.0,
-                          height: 63.0,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(16),
-                            color:
-                                Theme.of(context).brightness == Brightness.light
-                                    ? const Color(0xffD6D8DA)
-                                    : const Color(0xffB1B1B1),
-                          ),
-                        ),
+        // BlocBuilder<FreeTipsCategoryCubit, FreeTipsCategoryState>(
+        //   builder: (context, state) {
+        //     if (state is FreeTipsCategoryLoading) {
+        //       return Container(
+        //         height: 63.0,
+        //         padding: const EdgeInsets.only(
+        //           left: 20.0,
+        //         ),
+        //         child: ShimmerLoading(
+        //           child: ListView.builder(
+        //             shrinkWrap: true,
+        //             scrollDirection: Axis.horizontal,
+        //             itemCount:
+        //                 9, // Adjust count for desired number of shimmer items
+        //             itemBuilder: (context, index) {
+        //               return Padding(
+        //                 padding: const EdgeInsets.only(right: 10.0),
+        //                 child: Container(
+        //                   width: 63.0,
+        //                   height: 63.0,
+        //                   decoration: BoxDecoration(
+        //                     borderRadius: BorderRadius.circular(16),
+        //                     color:
+        //                         Theme.of(context).brightness == Brightness.light
+        //                             ? const Color(0xffD6D8DA)
+        //                             : const Color(0xffB1B1B1),
+        //                   ),
+        //                 ),
+        //               );
+        //             },
+        //           ),
+        //         ),
+        //       );
+        //     } else if (state is FreeTipsCategoryLoaded) {
+        //       final categories = state.categories.data;
+        //       final widget.randomNumbers = state.widget.randomNumbers;
+        //       return Container(
+        //         height: 63.0,
+        //         padding: const EdgeInsets.only(
+        //           left: 20.0,
+        //         ),
+        //         child: ListView.builder(
+        //           shrinkWrap: true,
+        //           scrollDirection:
+        //               Axis.horizontal, // Set scroll direction to horizontal
+        //           itemCount: 6,
+        //           itemBuilder: (context, index) {
+        //             return Padding(
+        //               padding: const EdgeInsets.only(right: 10.0, bottom: 5.0),
+        //               child: GestureDetector(
+        //                   onTap: () {
+        //                     setState(() {
+        //                       activeSubCat = index;
+        //                     });
+        //                     BlocProvider.of<BonusTipsBloc>(context).add(
+        //                       FetchBonusTipsList(
+        //                           categoryName: specialTipsEndPoint[
+        //                               widget.randomNumbers[index]]),
+        //                     );
+        //                   },
+        //                   child: CollapsableWidget(
+        //                     isActive: activeSubCat == index ? true : false,
+        //                     title: specialTipsNames[widget.randomNumbers[index]],
+        //                     icon: specialTipsIcons[widget.randomNumbers[index]],
+        //                   )),
+        //             );
+        //           },
+        //         ),
+        //       );
+        //     } else if (state is FreeTipsCategoryError) {
+        //       return Expanded(
+        //         child: Center(
+        //           child: GestureDetector(
+        //             onTap: () {
+        //               BlocProvider.of<BonusTipsBloc>(context).add(
+        //                 FetchBonusTipsList(
+        //                     categoryName:
+        //                         specialTipsEndPoint[widget.randomNumbers.first]),
+        //               );
+        //             },
+        //             child: Text(
+        //               "Network Error! No data \n Tap to retry!",
+        //               textAlign: TextAlign.center,
+        //               style: TextStyle(
+        //                   fontFamily: "Poppins",
+        //                   fontSize: 17,
+        //                   fontWeight: FontWeight.w300),
+        //             ),
+        //           ),
+        //         ),
+        //       );
+        //     } else {
+        //       return Container();
+        //     }
+        //   },
+        // ),
+        Container(
+          height: 63.0,
+          padding: const EdgeInsets.only(
+            left: 20.0,
+          ),
+          child: ListView.builder(
+            shrinkWrap: true,
+            scrollDirection:
+                Axis.horizontal, // Set scroll direction to horizontal
+            itemCount: 6,
+            itemBuilder: (context, index) {
+              return Padding(
+                padding: const EdgeInsets.only(right: 10.0, bottom: 5.0),
+                child: GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        activeSubCat = index;
+                      });
+                      BlocProvider.of<BonusTipsBloc>(context).add(
+                        FetchBonusTipsList(
+                            categoryName: specialTipsEndPoint[
+                                widget.randomNumbers.first]),
                       );
                     },
-                  ),
-                ),
+                    child: CollapsableWidget(
+                      isActive: activeSubCat == index ? true : false,
+                      title: specialTipsNames[widget.randomNumbers[index]],
+                      icon: specialTipsIcons[widget.randomNumbers[index]],
+                    )),
               );
-            } else if (state is CategoryLoaded) {
-              final categories = state.categories.data;
-              final randomNumbers = state.randomNumbers;
-              return Container(
-                height: 63.0,
-                padding: const EdgeInsets.only(
-                  left: 20.0,
-                ),
-                child: ListView.builder(
-                  shrinkWrap: true,
-                  scrollDirection:
-                      Axis.horizontal, // Set scroll direction to horizontal
-                  itemCount: 6,
-                  itemBuilder: (context, index) {
-                    return Padding(
-                      padding: const EdgeInsets.only(right: 10.0),
-                      child: GestureDetector(
-                          onTap: () {
-                            setState(() {
-                              activeSubCat = index;
-                            });
-                            context
-                                .read<TipsCubit>()
-                                .fetchTips(categories[randomNumbers[index]].id);
-                          },
-                          child: CollapsableWidget(
-                            isActive: activeSubCat == index ? true : false,
-                            title: categories[randomNumbers[index]].name,
-                            iconUrl:
-                                "https://totaltipsbet.com/uploads/${categories[randomNumbers[index]].image}",
-                          )),
-                    );
-                  },
-                ),
-              );
-            } else if (state is CategoryError) {
-              return Expanded(
-                child: Center(
-                  child: Text(
-                    "Network Error! No data",
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        fontFamily: "Poppins",
-                        fontSize: 17,
-                        fontWeight: FontWeight.w300),
-                  ),
-                ),
-              );
-            } else {
-              return Container();
-            }
-          },
+            },
+          ),
         ),
-        BlocBuilder<TipsCubit, TipsState>(
+        BlocBuilder<BonusTipsBloc, BonusTipsState>(
           builder: (context, state) {
-            if (state is TipsLoading) {
+            if (state is FetchBonusTipsLoading) {
               return Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 20.0, right: 20.0),
@@ -277,26 +393,27 @@ class _HomePageState extends State<HomePage> {
                         child: MatchItemWidget(
                           homeTeamName: "homeTeamName",
                           awayTeamName: "awayTeamName",
-                          homeTeamLogo:
-                              "cdd26aea-d092-4047-b1b5-c53f783c5bba.png",
-                          awayTeamLogo:
-                              "cdd26aea-d092-4047-b1b5-c53f783c5bba.png",
                           tipOdd: "tipOdd",
                           matchStatus: "matchStatus",
                           leagueName: "leagueName",
-                          matchScore: "matchScore",
                           matchTime: "1:1",
+                          homeTeamScore: '',
+                          awayTeamScore: '',
                         ),
                       );
                     },
                   ),
                 ),
               );
-            } else if (state is TipsLoaded) {
+            } else if (state is FetchBonusTipsSuccess) {
+              String decryptedText = Security.decrypt(state
+                  .tips.categoryList.first.couponList.first.matchList[0].time);
+              print('Decrypted Text: $decryptedText');
               return Expanded(
                 child: ListView.builder(
                   shrinkWrap: true, // Set scroll direction to horizontal
-                  itemCount: state.tips.data.length - 1,
+                  itemCount: state.tips.categoryList.first.couponList.first
+                      .matchList.length,
                   itemBuilder: (context, index) {
                     return GestureDetector(
                       onTap: () {
@@ -311,50 +428,86 @@ class _HomePageState extends State<HomePage> {
                                 0.8), // Set semi-transparent background
                             builder: (context) => TipBottomSheet(
                                 date:
-                                    "${formatDateString(state.tips.data[index + 1].coupon!.date)} ${state.tips.data[index + 1].time!}",
-                                league: state.tips.data[index + 1].league!.name,
-                                homeTeamName:
-                                    state.tips.data[index + 1].teamHome!.name,
-                                awayTeamName:
-                                    state.tips.data[index + 1].teamAway!.name,
+                                    "${formatDateString(Security.decrypt(state.tips.categoryList.first.couponList.first.matchList[index].date))} ${Security.decrypt(state.tips.categoryList.first.couponList.first.matchList[index].time)}",
+                                league: Security.decrypt(state
+                                    .tips
+                                    .categoryList
+                                    .first
+                                    .couponList
+                                    .first
+                                    .matchList[index]
+                                    .league),
+                                homeTeamName: Security.decrypt(state
+                                    .tips
+                                    .categoryList
+                                    .first
+                                    .couponList
+                                    .first
+                                    .matchList[index]
+                                    .home),
+                                awayTeamName: Security.decrypt(state
+                                    .tips
+                                    .categoryList
+                                    .first
+                                    .couponList
+                                    .first
+                                    .matchList[index]
+                                    .visitor),
                                 homeTeamScore:
-                                    state.tips.data[index + 1].homeScore!,
-                                awayTeamScore:
-                                    state.tips.data[index + 1].awayScore!,
-                                matchTip: state.tips.data[index + 1].forecast!,
-                                matchStatus:
-                                    state.tips.data[index + 1].status!),
+                                    Security.decrypt(state.tips.categoryList.first.couponList.first.matchList[index].homeScore),
+                                awayTeamScore: Security.decrypt(state.tips.categoryList.first.couponList.first.matchList[index].visitorScore),
+                                matchTip: Security.decrypt(state.tips.categoryList.first.couponList.first.matchList[index].bet),
+                                matchStatus: Security.decrypt(state.tips.categoryList.first.couponList.first.matchList[index].status)),
                           );
                         }
                       },
                       child: MatchItemWidget(
-                        homeTeamName: state.tips.data[index + 1].teamHome!.name,
-                        awayTeamName: state.tips.data[index + 1].teamAway!.name,
-                        homeTeamLogo:
-                            state.tips.data[index + 1].teamHome!.image!,
-                        awayTeamLogo:
-                            state.tips.data[index + 1].teamAway!.image!,
-                        tipOdd: state.tips.data[index + 1].odds!,
-                        matchStatus: state.tips.data[index + 1].status!,
-                        leagueName: state.tips.data[index + 1].league!.name,
-                        matchScore:
-                            "${state.tips.data[index + 1].homeScore!} : ${state.tips.data[index + 1].awayScore!}",
-                        matchTime: state.tips.data[index + 1].time!,
+                        matchTime: Security.decrypt(state.tips.categoryList
+                            .first.couponList.first.matchList[index].time),
+                        leagueName: Security.decrypt(state.tips.categoryList
+                            .first.couponList.first.matchList[index].league),
+                        homeTeamName: Security.decrypt(state.tips.categoryList
+                            .first.couponList.first.matchList[index].home),
+                        awayTeamName: Security.decrypt(state.tips.categoryList
+                            .first.couponList.first.matchList[index].visitor),
+                        homeTeamScore: Security.decrypt(state.tips.categoryList
+                            .first.couponList.first.matchList[index].homeScore),
+                        awayTeamScore: Security.decrypt(state
+                            .tips
+                            .categoryList
+                            .first
+                            .couponList
+                            .first
+                            .matchList[index]
+                            .visitorScore),
+                        tipOdd: Security.decrypt(state.tips.categoryList.first
+                            .couponList.first.matchList[index].rate),
+                        matchStatus: Security.decrypt(state.tips.categoryList
+                            .first.couponList.first.matchList[index].status),
                       ),
                     );
                   },
                 ),
               );
-            } else if (state is TipsError) {
+            } else if (state is FetchBonusTipsErrorState) {
               return Expanded(
                 child: Center(
-                  child: Text(
-                    "Network Error! \n No data",
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(
-                        fontFamily: "Poppins",
-                        fontSize: 17,
-                        fontWeight: FontWeight.w300),
+                  child: GestureDetector(
+                    onTap: () {
+                      BlocProvider.of<BonusTipsBloc>(context).add(
+                        FetchBonusTipsList(
+                            categoryName: specialTipsEndPoint[
+                                widget.randomNumbers.first]),
+                      );
+                    },
+                    child: const Text(
+                      "Network Error! \n No data \n Tap to retry",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontFamily: "Poppins",
+                          fontSize: 17,
+                          fontWeight: FontWeight.w300),
+                    ),
                   ),
                 ),
               );
@@ -379,13 +532,6 @@ class _HomePageState extends State<HomePage> {
     String formattedDate = outputFormat.format(dateTime);
 
     return formattedDate;
-  }
-
-  List<int> generateRandomNumbers() {
-    final random = Random();
-    final List<int> numbers = List.generate(10, (index) => index);
-    numbers.shuffle(random);
-    return numbers.take(6).toList();
   }
 
   Map<String, String> _convertToMapStringString(Map<String, dynamic>? data) {

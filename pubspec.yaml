@@ -13,7 +13,7 @@ dependencies:
   flutter_bloc:
   dio:
   cupertino_icons:
-  #Local Storage
+  url_launcher:
   flutter_secure_storage:
   equatable:
   flutter_svg:
@@ -23,6 +23,7 @@ dependencies:
   shimmer:
   google_mobile_ads:
   intl: ^0.19.0
+  encrypt:
 dev_dependencies:
   flutter_test:
     sdk: flutter

@@ -13,21 +13,36 @@ import 'package:google_mobile_ads/google_mobile_ads.dart';
 import 'bloc/auth_bloc/auth_bloc.dart';
 import 'view/auth_screens/otp_verification_screen.dart';
 
-void main() {
+void main() async {
   final Dio dio = Dio(); // You can configure Dio instance here if needed
   final storage = FlutterSecureStorage();
   final AuthService authService = AuthService(dio, storage);
 
   WidgetsFlutterBinding.ensureInitialized();
   MobileAds.instance.initialize();
-  runApp(MyApp(authService: authService));
+  storage.read(key: 'isFirstLaunch').then((launchStatus) {
+    runApp(MyApp(isFirstLaunch: launchStatus, authService: authService));
+  });
+  // runApp(MyApp(authService: authService));
 }
 
 class MyApp extends StatelessWidget {
   final AuthService authService;
 
-  MyApp({required this.authService});
+  final String? isFirstLaunch;
+  MyApp({required this.authService, this.isFirstLaunch = "true"});
   final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+  Widget _decideFirstPage(String? isFirstLaunch) {
+    if (isFirstLaunch != null && isFirstLaunch == "false") {
+      return LandingPageScreen();
+    } else {
+      return BlocProvider(
+        create: (context) => AuthBloc(authService, navigatorKey: navigatorKey),
+        child: LoginScreen(),
+      );
+    }
+  }
 
   // This widget is the root of your application.
   @override
@@ -48,10 +63,7 @@ class MyApp extends StatelessWidget {
         // '/otp_verification': (context) => OtpVerificationScreen(),
         // '/confirmEmail': (context) => ConfirmEmailScreen(),
       },
-      home: BlocProvider(
-        create: (context) => AuthBloc(authService, navigatorKey: navigatorKey),
-        child: LoginScreen(),
-      ),
+      home: _decideFirstPage(isFirstLaunch),
     );
   }
 }

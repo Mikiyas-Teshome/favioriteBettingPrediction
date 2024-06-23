@@ -5,11 +5,11 @@ class CollapsableWidget extends StatelessWidget {
       {super.key,
       required this.isActive,
       required this.title,
-      required this.iconUrl});
+      required this.icon});
 
   final bool isActive;
   final String title;
-  final String iconUrl;
+  final String icon;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -29,19 +29,9 @@ class CollapsableWidget extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.all(8.0),
             child: ClipOval(
-              child: FadeInImage.assetNetwork(
-                placeholder: 'assets/subCatIcon.png',
-                image: iconUrl,
-                placeholderScale: 1,
-                imageErrorBuilder: (context, error, stackTrace) {
-                  return Icon(
-                    Icons.error,
-                    size: 40,
-                  );
-                },
-                fadeInDuration: Duration(milliseconds: 300),
-              ),
-            ),
+                child: Image.asset(
+              icon,
+            )),
           ),
           isActive
               ? Padding(

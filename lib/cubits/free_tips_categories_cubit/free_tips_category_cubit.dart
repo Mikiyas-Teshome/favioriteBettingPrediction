@@ -8,22 +8,23 @@ import 'package:equatable/equatable.dart';
 import 'package:faviorite_app/models/categories_model.dart';
 import '../../repositories/category_repository.dart';
 
-part 'category_state.dart';
+part 'free_tips_category_state.dart';
 
-class CategoryCubit extends Cubit<CategoryState> {
+class FreeTipsCategoryCubit extends Cubit<FreeTipsCategoryState> {
   final CategoryRepository categoryRepository;
 
-  CategoryCubit(this.categoryRepository) : super(CategoryInitial());
+  FreeTipsCategoryCubit(this.categoryRepository)
+      : super(FreeTipsCategoryInitial());
 
   Future<void> fetchCategories() async {
     try {
-      emit(CategoryLoading());
+      emit(FreeTipsCategoryLoading());
 
       final List<int> randomNumbers = generateRandomNumbers();
       final categories = await categoryRepository.fetchCategories();
-      emit(CategoryLoaded(categories, randomNumbers));
+      emit(FreeTipsCategoryLoaded(categories, randomNumbers));
     } catch (e) {
-      emit(CategoryError('Failed to fetch categories'));
+      emit(FreeTipsCategoryError('Failed to fetch categories'));
     }
   }
 

@@ -1,9 +1,11 @@
 import 'package:faviorite_app/constants/color_constants.dart';
-import 'package:faviorite_app/view/screens/free_tips_ativity_page.dart';
+import 'package:faviorite_app/view/screens/free_tips_activity_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import '../../cubits/categories_cubit/category_cubit.dart';
+import '../../cubits/free_tips_categories_cubit/free_tips_category_cubit.dart';
+import '../../cubits/tips_cubit/tips_cubit.dart';
+import '../../repositories/category_repository.dart';
 import '../widgets/shimmer_loading.dart';
 
 class FreeTipsPage extends StatefulWidget {
@@ -14,16 +16,18 @@ class FreeTipsPage extends StatefulWidget {
 }
 
 class _FreeTipsPageState extends State<FreeTipsPage> {
+  late FreeTipsCategoryCubit categoryCubit;
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      final categoryCubit = context.read<CategoryCubit>();
+      final categoryCubit = context.read<FreeTipsCategoryCubit>();
       categoryCubit.fetchCategories();
     });
   }
 
+  final categoryRepository = CategoryRepository();
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -61,9 +65,9 @@ class _FreeTipsPageState extends State<FreeTipsPage> {
             ],
           ),
         ),
-        BlocBuilder<CategoryCubit, CategoryState>(
+        BlocBuilder<FreeTipsCategoryCubit, FreeTipsCategoryState>(
           builder: (context, state) {
-            if (state is CategoryLoading) {
+            if (state is FreeTipsCategoryLoading) {
               return Expanded(
                 child: ShimmerLoading(
                   child: GridView.count(
@@ -92,7 +96,7 @@ class _FreeTipsPageState extends State<FreeTipsPage> {
                   ),
                 ),
               );
-            } else if (state is CategoryLoaded) {
+            } else if (state is FreeTipsCategoryLoaded) {
               final categories = state.categories.data;
               return Expanded(
                 child: GridView.count(
@@ -107,7 +111,13 @@ class _FreeTipsPageState extends State<FreeTipsPage> {
                           context,
                           MaterialPageRoute(
                             builder: (context) {
-                              return FreeTipsAtivityPage();
+                              return BlocProvider(
+                                create: (context) =>
+                                    TipsCubit(categoryRepository),
+                                child: FreeTipsActivityPage(
+                                    categoryId: categories[index].id,
+                                    categoryName: categories[index].name),
+                              );
                             },
                           ),
                         );
@@ -178,16 +188,23 @@ class _FreeTipsPageState extends State<FreeTipsPage> {
               //   iconUrl:
               //   "https://totaltipsbet.com/uploads/${categories[randomNumbers[index]].image}",
               // ),
-            } else if (state is CategoryError) {
-              return const Expanded(
+            } else if (state is FreeTipsCategoryError) {
+              return Expanded(
                 child: Center(
-                  child: Text(
-                    "Network Error! No data",
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                        fontFamily: "Poppins",
-                        fontSize: 17,
-                        fontWeight: FontWeight.w300),
+                  child: GestureDetector(
+                    onTap: () {
+                      final categoryCubit =
+                          context.read<FreeTipsCategoryCubit>();
+                      categoryCubit.fetchCategories();
+                    },
+                    child: Text(
+                      "Network Error! No data\n Tap to Retry!",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontFamily: "Poppins",
+                          fontSize: 17,
+                          fontWeight: FontWeight.w300),
+                    ),
                   ),
                 ),
               );

@@ -1,5 +1,5 @@
 import 'package:dio/dio.dart';
-import 'package:faviorite_app/bloc/nav_bloc/nav_bloc.dart';
+
 import 'package:faviorite_app/view/auth_screens/confirm_email_screen.dart';
 import 'package:faviorite_app/view/auth_screens/forget_password.dart';
 import 'package:faviorite_app/view/auth_screens/reset_password.dart';
@@ -26,6 +26,7 @@ import '../../bloc/auth_bloc/auth_bloc.dart';
 import '../../bloc/auth_bloc/auth_event.dart';
 import '../../bloc/auth_bloc/auth_state.dart';
 import '../../constants/color_constants.dart';
+import '../../repositories/category_repository.dart';
 import '../../services/auth_services/auth_service.dart';
 import '../widgets/custom_dialog.dart';
 
@@ -82,10 +83,7 @@ class _LoginScreenState extends State<LoginScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) {
-                  return BlocProvider(
-                    create: (context) => NavBloc(),
-                    child: LandingPageScreen(),
-                  );
+                  return LandingPageScreen();
                 },
               ),
             );
@@ -94,10 +92,7 @@ class _LoginScreenState extends State<LoginScreen> {
               context,
               MaterialPageRoute(
                 builder: (context) {
-                  return BlocProvider(
-                    create: (context) => NavBloc(),
-                    child: LandingPageScreen(),
-                  );
+                  return LandingPageScreen();
                 },
               ),
             );
@@ -329,10 +324,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               context,
                               MaterialPageRoute(
                                 builder: (context) {
-                                  return BlocProvider(
-                                    create: (context) => NavBloc(),
-                                    child: LandingPageScreen(),
-                                  );
+                                  return LandingPageScreen();
                                 },
                               ),
                             );
