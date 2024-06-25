@@ -105,12 +105,26 @@ class TipBottomSheet extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    width: MediaQuery.of(context).size.width * 0.022,
-                    height: MediaQuery.of(context).size.width * 0.055,
-                    color: primaryColor,
+                    width: 10,
+                    height: 25,
+                    decoration: const BoxDecoration(
+                      color: Color(0xff0055D5),
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(5.0),
+                        bottomRight: Radius.circular(5.0),
+                      ),
+                    ),
                   ),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.072,
+                    width: 10.0,
+                  ),
+                  Image.asset(
+                    "assets/homeTeam.png",
+                    width: 35.0,
+                    height: 35.0,
+                  ),
+                  SizedBox(
+                    width: 10.0,
                   ),
                   Expanded(
                     child: Text(
@@ -146,12 +160,26 @@ class TipBottomSheet extends StatelessWidget {
               Row(
                 children: [
                   Container(
-                    width: MediaQuery.of(context).size.width * 0.022,
-                    height: MediaQuery.of(context).size.width * 0.055,
-                    color: primaryColor,
+                    width: 10,
+                    height: 25,
+                    decoration: const BoxDecoration(
+                      color: Color(0xffA61C20),
+                      borderRadius: BorderRadius.only(
+                        topRight: Radius.circular(5.0),
+                        bottomRight: Radius.circular(5.0),
+                      ),
+                    ),
                   ),
                   SizedBox(
-                    width: MediaQuery.of(context).size.width * 0.072,
+                    width: 10.0,
+                  ),
+                  Image.asset(
+                    "assets/awayTeam.png",
+                    width: 35.0,
+                    height: 35.0,
+                  ),
+                  SizedBox(
+                    width: 10.0,
                   ),
                   Expanded(
                     child: Text(

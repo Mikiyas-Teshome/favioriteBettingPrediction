@@ -11,7 +11,6 @@
 //   "Fixed Tips👑",
 //   "Daily 10+👑",
 //   "HT-FT 👑",
-//   "Single + Double👑",
 // ];
 // List<String> specialTipsEndPoint = [
 //   "Today's Top 3 Tips",
@@ -26,5 +25,4 @@
 //   "Fixed VIP",
 //   "Daily 10+ Odds VIP",
 //   "HT-FT VIP",
-//   "Single VIP + Double VIP",
 // ];

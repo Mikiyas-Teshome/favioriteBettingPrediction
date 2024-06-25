@@ -3,8 +3,8 @@ import 'dart:math';
 import 'package:carousel_slider/carousel_options.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:dio/dio.dart';
-import 'package:faviorite_app/bloc/bonus_tips_bloc/bonus_tips_bloc.dart';
 import 'package:faviorite_app/constants/color_constants.dart';
+import 'package:faviorite_app/cubits/bonus_tips_cubit/bonus_tips_cubit.dart';
 import 'package:faviorite_app/cubits/tips_cubit/tips_cubit.dart';
 import 'package:faviorite_app/view/screens/free_tips_screen.dart';
 import 'package:faviorite_app/view/screens/vip_tips_screen.dart';
@@ -49,14 +49,17 @@ class _HomePageState extends State<HomePage> {
 
     _adManager.loadInterstitialAd();
     _fetchData();
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   print("randomNumgers ${widget.randomNumbers.first}");
-    //
-    //   BlocProvider.of<BonusTipsBloc>(context).add(
-    //     FetchBonusTipsList(
-    //         categoryName: specialTipsEndPoint[widget.randomNumbers.first]),
-    //   );
-    // });
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      print("randomNumgers ${widget.randomNumbers.first}");
+
+      final bonusTipsCubit = context.read<BonusTipsCubit>();
+      bonusTipsCubit
+          .fetchBonusTipsList(specialTipsEndPoint[widget.randomNumbers.first]);
+      // BlocProvider.of<BonusTipsBloc>(context).add(
+      //   BonusTipsList(
+      //       categoryName: specialTipsEndPoint[widget.randomNumbers.first]),
+      // );
+    });
   }
 
   List<String> specialTipsNames = [
@@ -66,7 +69,7 @@ class _HomePageState extends State<HomePage> {
     "Fixed Tips👑",
     "Daily 10+👑",
     "HT-FT 👑",
-    "Single + Double👑",
+    "Football Tips👑",
   ];
 
   List<String> specialTipsIcons = [
@@ -76,7 +79,7 @@ class _HomePageState extends State<HomePage> {
     "assets/fixed.png",
     "assets/top_daily_tips.png",
     "assets/halfTime.png",
-    "assets/single.png",
+    "assets/football.png",
   ];
 
   List<String> specialTipsEndPoint = [
@@ -86,7 +89,7 @@ class _HomePageState extends State<HomePage> {
     "Fixed VIP",
     "Daily 10+ Odds VIP",
     "HT-FT VIP",
-    "Single VIP + Double VIP",
+    "Football Combine",
   ];
 
   Future<void> _fetchData() async {
@@ -250,102 +253,6 @@ class _HomePageState extends State<HomePage> {
                 fontWeight: FontWeight.w700),
           ),
         ),
-        // BlocBuilder<FreeTipsCategoryCubit, FreeTipsCategoryState>(
-        //   builder: (context, state) {
-        //     if (state is FreeTipsCategoryLoading) {
-        //       return Container(
-        //         height: 63.0,
-        //         padding: const EdgeInsets.only(
-        //           left: 20.0,
-        //         ),
-        //         child: ShimmerLoading(
-        //           child: ListView.builder(
-        //             shrinkWrap: true,
-        //             scrollDirection: Axis.horizontal,
-        //             itemCount:
-        //                 9, // Adjust count for desired number of shimmer items
-        //             itemBuilder: (context, index) {
-        //               return Padding(
-        //                 padding: const EdgeInsets.only(right: 10.0),
-        //                 child: Container(
-        //                   width: 63.0,
-        //                   height: 63.0,
-        //                   decoration: BoxDecoration(
-        //                     borderRadius: BorderRadius.circular(16),
-        //                     color:
-        //                         Theme.of(context).brightness == Brightness.light
-        //                             ? const Color(0xffD6D8DA)
-        //                             : const Color(0xffB1B1B1),
-        //                   ),
-        //                 ),
-        //               );
-        //             },
-        //           ),
-        //         ),
-        //       );
-        //     } else if (state is FreeTipsCategoryLoaded) {
-        //       final categories = state.categories.data;
-        //       final widget.randomNumbers = state.widget.randomNumbers;
-        //       return Container(
-        //         height: 63.0,
-        //         padding: const EdgeInsets.only(
-        //           left: 20.0,
-        //         ),
-        //         child: ListView.builder(
-        //           shrinkWrap: true,
-        //           scrollDirection:
-        //               Axis.horizontal, // Set scroll direction to horizontal
-        //           itemCount: 6,
-        //           itemBuilder: (context, index) {
-        //             return Padding(
-        //               padding: const EdgeInsets.only(right: 10.0, bottom: 5.0),
-        //               child: GestureDetector(
-        //                   onTap: () {
-        //                     setState(() {
-        //                       activeSubCat = index;
-        //                     });
-        //                     BlocProvider.of<BonusTipsBloc>(context).add(
-        //                       FetchBonusTipsList(
-        //                           categoryName: specialTipsEndPoint[
-        //                               widget.randomNumbers[index]]),
-        //                     );
-        //                   },
-        //                   child: CollapsableWidget(
-        //                     isActive: activeSubCat == index ? true : false,
-        //                     title: specialTipsNames[widget.randomNumbers[index]],
-        //                     icon: specialTipsIcons[widget.randomNumbers[index]],
-        //                   )),
-        //             );
-        //           },
-        //         ),
-        //       );
-        //     } else if (state is FreeTipsCategoryError) {
-        //       return Expanded(
-        //         child: Center(
-        //           child: GestureDetector(
-        //             onTap: () {
-        //               BlocProvider.of<BonusTipsBloc>(context).add(
-        //                 FetchBonusTipsList(
-        //                     categoryName:
-        //                         specialTipsEndPoint[widget.randomNumbers.first]),
-        //               );
-        //             },
-        //             child: Text(
-        //               "Network Error! No data \n Tap to retry!",
-        //               textAlign: TextAlign.center,
-        //               style: TextStyle(
-        //                   fontFamily: "Poppins",
-        //                   fontSize: 17,
-        //                   fontWeight: FontWeight.w300),
-        //             ),
-        //           ),
-        //         ),
-        //       );
-        //     } else {
-        //       return Container();
-        //     }
-        //   },
-        // ),
         Container(
           height: 63.0,
           padding: const EdgeInsets.only(
@@ -364,11 +271,13 @@ class _HomePageState extends State<HomePage> {
                       setState(() {
                         activeSubCat = index;
                       });
-                      BlocProvider.of<BonusTipsBloc>(context).add(
-                        FetchBonusTipsList(
-                            categoryName: specialTipsEndPoint[
-                                widget.randomNumbers.first]),
-                      );
+                      context.read<BonusTipsCubit>().fetchBonusTipsList(
+                          specialTipsEndPoint[widget.randomNumbers[index]]);
+                      // BlocProvider.of<BonusTipsBloc>(context).add(
+                      //   BonusTipsList(
+                      //       categoryName: specialTipsEndPoint[
+                      //           widget.randomNumbers[index]]),
+                      // );
                     },
                     child: CollapsableWidget(
                       isActive: activeSubCat == index ? true : false,
@@ -379,9 +288,9 @@ class _HomePageState extends State<HomePage> {
             },
           ),
         ),
-        BlocBuilder<BonusTipsBloc, BonusTipsState>(
+        BlocBuilder<BonusTipsCubit, BonusTipsState>(
           builder: (context, state) {
-            if (state is FetchBonusTipsLoading) {
+            if (state is BonusTipsLoading) {
               return Expanded(
                 child: Padding(
                   padding: const EdgeInsets.only(left: 20.0, right: 20.0),
@@ -389,26 +298,32 @@ class _HomePageState extends State<HomePage> {
                     shrinkWrap: true, // Set scroll direction to horizontal
                     itemCount: 4,
                     itemBuilder: (context, index) {
-                      return const ShimmerLoading(
-                        child: MatchItemWidget(
-                          homeTeamName: "homeTeamName",
-                          awayTeamName: "awayTeamName",
-                          tipOdd: "tipOdd",
-                          matchStatus: "matchStatus",
-                          leagueName: "leagueName",
-                          matchTime: "1:1",
-                          homeTeamScore: '',
-                          awayTeamScore: '',
+                      return ShimmerLoading(
+                        child: Container(
+                          padding: const EdgeInsets.only(
+                            top: 12.0,
+                            bottom: 12.0,
+                          ),
+                          width: MediaQuery.of(context).size.width,
+                          margin: const EdgeInsets.symmetric(
+                              horizontal: 10.0, vertical: 10.0),
+                          decoration: BoxDecoration(
+                            color:
+                                Theme.of(context).brightness == Brightness.light
+                                    ? const Color(0xffffffff)
+                                    : const Color(0xff2C2C2C),
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: SizedBox(
+                            height: MediaQuery.of(context).size.width * 0.38,
+                          ),
                         ),
                       );
                     },
                   ),
                 ),
               );
-            } else if (state is FetchBonusTipsSuccess) {
-              String decryptedText = Security.decrypt(state
-                  .tips.categoryList.first.couponList.first.matchList[0].time);
-              print('Decrypted Text: $decryptedText');
+            } else if (state is BonusTipsSuccess) {
               return Expanded(
                 child: ListView.builder(
                   shrinkWrap: true, // Set scroll direction to horizontal
@@ -489,16 +404,19 @@ class _HomePageState extends State<HomePage> {
                   },
                 ),
               );
-            } else if (state is FetchBonusTipsErrorState) {
+            } else if (state is BonusTipsErrorState) {
               return Expanded(
                 child: Center(
                   child: GestureDetector(
                     onTap: () {
-                      BlocProvider.of<BonusTipsBloc>(context).add(
-                        FetchBonusTipsList(
-                            categoryName: specialTipsEndPoint[
-                                widget.randomNumbers.first]),
-                      );
+                      context.read<BonusTipsCubit>().fetchBonusTipsList(
+                          specialTipsEndPoint[
+                              widget.randomNumbers[activeSubCat]]);
+                      // BlocProvider.of<BonusTipsBloc>(context).add(
+                      //   BonusTipsList(
+                      //       categoryName: specialTipsEndPoint[
+                      //           widget.randomNumbers[activeSubCat]]),
+                      // );
                     },
                     child: const Text(
                       "Network Error! \n No data \n Tap to retry",
@@ -523,8 +441,8 @@ class _HomePageState extends State<HomePage> {
   }
 
   String formatDateString(String dateString) {
-    // Parse the input date string
-    DateFormat inputFormat = DateFormat('dd.MM.yyyy');
+    // Parse the input date string  2024-06-24
+    DateFormat inputFormat = DateFormat('yyyy-MM-dd');
     DateTime dateTime = inputFormat.parse(dateString);
 
     // Format the DateTime object to the desired format

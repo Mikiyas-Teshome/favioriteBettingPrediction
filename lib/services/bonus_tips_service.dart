@@ -11,15 +11,17 @@ class BonusTipsService {
   Future<BonusTipsModel> fetchTips({required String categoryName}) async {
     try {
       final response = await _dio.get(
-        fetchBonusTipsUrl + categoryName,
+        fetchBonusTipsUrl,
+        data: {"cat": categoryName},
       );
-      print("Res data: ${response.data}");
+      print("status: ${response.statusCode} \n categoryName: $categoryName");
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 200 && !response.data['HasError']) {
         final jsonData = response.data as Map<String, dynamic>;
         return BonusTipsModel.fromJson(jsonData);
       } else {
-        print("Error fetching data: ${response.statusCode}");
+        print(
+            "Res data: ${response.data} Error fetching data: ${response.statusCode}");
         throw Exception("Error fetching data: ${response.statusCode}");
       }
     } on DioException catch (error) {

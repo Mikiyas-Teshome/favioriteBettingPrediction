@@ -4,6 +4,7 @@ import 'package:dio/dio.dart';
 import 'package:faviorite_app/bloc/bonus_tips_bloc/bonus_tips_bloc.dart';
 import 'package:faviorite_app/bloc/tips_bloc/tips_bloc.dart';
 import 'package:faviorite_app/constants/color_constants.dart';
+import 'package:faviorite_app/cubits/bonus_tips_cubit/bonus_tips_cubit.dart';
 import 'package:faviorite_app/cubits/tips_cubit/tips_cubit.dart';
 import 'package:faviorite_app/services/bonus_tips_service.dart';
 import 'package:faviorite_app/view/screens/free_tips_page.dart';
@@ -108,8 +109,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
       //     ),
       providers: [
         BlocProvider(
-          create: (context) => BonusTipsBloc(bonusTipsService)
-            ..add(FetchBonusTipsList(categoryName: "Tennis")),
+          create: (context) => BonusTipsCubit(bonusTipsService),
         ),
         BlocProvider(
           create: (context) => FreeTipsCategoryCubit(categoryRepository),
@@ -124,15 +124,7 @@ class _LandingPageScreenState extends State<LandingPageScreen> {
       child: Scaffold(
           body: SafeArea(
               child: _selectedIndex == 0
-                  ? BlocProvider(
-                      create: (context) {
-                        print("Creating BonusTipsBloc"); // Debug print
-                        final bloc = BonusTipsBloc(BonusTipsService());
-                        bloc.add(FetchBonusTipsList(categoryName: "Tennis"));
-                        return bloc;
-                      },
-                      child: HomePage(randomNumbers: randomNumbers),
-                    )
+                  ? HomePage(randomNumbers: randomNumbers)
                   : _pages[_selectedIndex - 1]),
           // Center(child: bottomNavScreen.elementAt(state.tabIndex)),
           bottomNavigationBar: Container(

@@ -2,7 +2,7 @@ part of 'bonus_tips_bloc.dart';
 
 abstract class BonusTipsState {}
 
-final class FetchBonusInitial extends BonusTipsState {}
+class FetchBonusInitial extends BonusTipsState {}
 
 class FetchBonusTipsLoading extends BonusTipsState {}
 
